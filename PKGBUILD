@@ -15,7 +15,7 @@ depends=('python' 'systemd-libs')
 provides=("${_pkgname}=${_pkgver}-${_pkgrel}" "systemd-tools=${_pkgver}" "udev=${_pkgver}")
 conflicts=("${_pkgname}")
 source=(systemctl.py)
-md5sums=('8eee6334850a44ae051fb1cf32d93f45')
+md5sums=('SKIP')
 
 package() {
   install -Dm755 systemctl.py "$pkgdir"/usr/bin/systemctl

@@ -21,6 +21,7 @@ import time
 import socket
 import datetime
 import fcntl
+import ctypes
 
 if sys.version[0] == '2':
     string_types = basestring
@@ -29,6 +30,8 @@ else:
     string_types = str
     xrange = range
 
+STDC = ctypes.CDLL('libc.so.6')
+PR_SET_CHILD_SUBREAPER = 36
 COVERAGE = os.environ.get("SYSTEMCTL_COVERAGE", "")
 DEBUG_AFTER = os.environ.get("SYSTEMCTL_DEBUG_AFTER", "") or False
 EXIT_WHEN_NO_MORE_PROCS = os.environ.get("SYSTEMCTL_EXIT_WHEN_NO_MORE_PROCS", "") or False
@@ -4069,6 +4072,8 @@ class Systemctl:
             is received then the signal name is returned. Any other signal will 
             just raise an Exception like one would normally expect. As a special
             the 'systemctl halt' emits SIGQUIT which puts it into no_more_procs mode."""
+        STDC.prctl(PR_SET_CHILD_SUBREAPER, 1)
+        signal.signal(signal.SIGCHLD, lambda signum, frame: os.waitpid(-1, os.WCONTINUED|os.WNOHANG|os.WUNTRACED))
         signal.signal(signal.SIGQUIT, lambda signum, frame: ignore_signals_and_raise_keyboard_interrupt("SIGQUIT"))
         signal.signal(signal.SIGINT, lambda signum, frame: ignore_signals_and_raise_keyboard_interrupt("SIGINT"))
         signal.signal(signal.SIGTERM, lambda signum, frame: ignore_signals_and_raise_keyboard_interrupt("SIGTERM"))
